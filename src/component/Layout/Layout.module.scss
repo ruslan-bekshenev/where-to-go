@@ -1,0 +1,19 @@
+.layout {
+ @apply min-h-screen;
+}
+
+.header {
+ @apply flex items-center bg-white border-b border-b-indigo-100;
+}
+
+.content {
+ @apply bg-white;
+}
+
+.footer {
+ @apply flex items-center bg-white border-t border-t-indigo-100;
+}
+
+h3.logo {
+ @apply mb-0 text-3xl;
+}
