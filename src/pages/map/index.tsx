@@ -11,7 +11,8 @@ import useDebounce from '../../util/hooks/useDebounce'
 import styles from './Map.module.scss'
 
 const Map = () => {
-  const [loading, setLoading] = React.useState(true)
+  const [loading, setLoading] = useState(true)
+  const [city, setCity] = useState([38.0983, 55.7038])
   const handleMapLoading = () => setLoading(false)
   const [search, setSearch] = useState<string>('')
   const debouncedSearch = useDebounce(search, 500)
@@ -21,9 +22,13 @@ const Map = () => {
   }
 
   useEffect(() => {
-    axios.get(`${process.env.API_URL}/map/place/ru`, {
-      params: { name: debouncedSearch },
-    })
+    axios
+      .get(`${process.env.API_URL}/map/place/ru`, {
+        params: { name: debouncedSearch },
+      })
+      .then((data) => {
+        console.log(data)
+      })
   }, [debouncedSearch])
   return (
     <>

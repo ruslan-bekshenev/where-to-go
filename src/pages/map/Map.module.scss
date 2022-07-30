@@ -7,7 +7,7 @@
 }
 
 .search {
-  @apply absolute w-full flex justify-center py-5;
+  @apply absolute w-full flex justify-center py-5 z-10;
 }
 .searchContainer {
   @apply w-2/4;
