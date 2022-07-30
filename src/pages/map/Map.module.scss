@@ -5,3 +5,10 @@
 .mapWrapper {
   @apply h-full;
 }
+
+.search {
+  @apply absolute w-full flex justify-center py-5;
+}
+.searchContainer {
+  @apply w-2/4;
+}
