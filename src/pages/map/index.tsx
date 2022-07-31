@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 
 import Head from 'next/head'
 
@@ -22,13 +22,19 @@ const Map = () => {
   }
 
   useEffect(() => {
-    axios
-      .get(`${process.env.API_URL}/map/place/ru`, {
-        params: { name: debouncedSearch },
-      })
-      .then((data) => {
-        console.log(data)
-      })
+    console.log(process.env.API_URL)
+    if (debouncedSearch) {
+      axios
+        .get(
+          `${process.env.API_URL || 'http://localhost:6000/api'}/map/place/ru`,
+          {
+            params: { name: debouncedSearch },
+          },
+        )
+        .then((data) => {
+          console.log(data)
+        })
+    }
   }, [debouncedSearch])
   return (
     <>
