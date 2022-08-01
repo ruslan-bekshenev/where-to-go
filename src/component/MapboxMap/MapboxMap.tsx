@@ -26,7 +26,7 @@ const MapboxMap = ({
     const node = mapNode.current
 
     if (typeof window === 'undefined' || node === null) return
-
+    console.log(process.env.NEXT_PUBLIC_MAPBOX_TOKEN)
     const mapboxMap = new mapboxgl.Map({
       container: node,
       accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,

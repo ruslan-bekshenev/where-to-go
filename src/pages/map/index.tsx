@@ -3,12 +3,15 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import Head from 'next/head'
 
 import { Input } from 'antd'
-import axios from 'axios'
 
 import MapboxMap from '../../component/MapboxMap'
 import useDebounce from '../../util/hooks/useDebounce'
 
 import styles from './Map.module.scss'
+
+export const getServerSizeProps = () => {
+  console.log('1')
+}
 
 const Map = () => {
   const [loading, setLoading] = useState(true)
@@ -22,20 +25,24 @@ const Map = () => {
   }
 
   useEffect(() => {
-    console.log(process.env.API_URL)
-    if (debouncedSearch) {
-      axios
-        .get(
-          `${process.env.API_URL || 'http://localhost:6000/api'}/map/place/ru`,
-          {
-            params: { name: debouncedSearch },
-          },
-        )
-        .then((data) => {
-          console.log(data)
-        })
-    }
-  }, [debouncedSearch])
+    if (typeof window === 'undefined') return
+    setTimeout(() => {
+      console.log(process.env)
+    }, 1000)
+    console.log(process.env)
+    // if (debouncedSearch) {
+    //   axios
+    //     .get(
+    //       `${process.env.API_URL || 'http://localhost:6000/api'}/map/place/ru`,
+    //       {
+    //         params: { name: debouncedSearch },
+    //       },
+    //     )
+    //     .then((data) => {
+    //       console.log(data)
+    //     })
+    // }
+  }, [])
   return (
     <>
       <Head>
