@@ -52,10 +52,41 @@ const MapboxMap = ({
   }, [])
 
   useEffect(() => {
-    map?.flyTo({
-      center,
-    })
-  }, [center])
+    if (map) {
+      map.on('load', () => {
+        map.flyTo({
+          center,
+        })
+        map.addSource('points', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Point',
+                  coordinates: center,
+                },
+              },
+            ],
+          },
+        })
+        map.addLayer({
+          id: 'circle',
+          type: 'circle',
+          source: 'points',
+          paint: {
+            'circle-color': '#4264fb',
+            'circle-radius': 8,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#ffffff',
+          },
+        })
+      })
+    }
+  }, [map, center])
 
   return <div ref={mapNode} style={{ width: '100%', height: '100%' }} />
 }
