@@ -10,6 +10,7 @@ export interface MapboxMapProps {
   onLoaded?(map: mapboxgl.Map): void
   onRemoved?(): void
   onMapLoaded?: any
+  center: [number, number]
 }
 
 const MapboxMap = ({
@@ -17,6 +18,7 @@ const MapboxMap = ({
   onCreated,
   onLoaded,
   onRemoved,
+  center,
 }: MapboxMapProps) => {
   const [map, setMap] = useState<mapboxgl.Map>()
 
@@ -31,7 +33,7 @@ const MapboxMap = ({
       accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
       style: 'mapbox://styles/mapbox/streets-v11',
       center: [-74.5, 40],
-      zoom: 9,
+      zoom: 11,
       ...initialOptions,
     })
 
@@ -48,6 +50,12 @@ const MapboxMap = ({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    map?.flyTo({
+      center,
+    })
+  }, [center])
 
   return <div ref={mapNode} style={{ width: '100%', height: '100%' }} />
 }
