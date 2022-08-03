@@ -10,7 +10,7 @@ export interface MapboxMapProps {
   onLoaded?(map: mapboxgl.Map): void
   onRemoved?(): void
   onMapLoaded?: any
-  center: [number, number]
+  center?: [number, number]
 }
 
 const MapboxMap = ({
@@ -57,33 +57,33 @@ const MapboxMap = ({
         map.flyTo({
           center,
         })
-        map.addSource('points', {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: [
-              {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                  type: 'Point',
-                  coordinates: center,
-                },
-              },
-            ],
-          },
-        })
-        map.addLayer({
-          id: 'circle',
-          type: 'circle',
-          source: 'points',
-          paint: {
-            'circle-color': '#4264fb',
-            'circle-radius': 8,
-            'circle-stroke-width': 2,
-            'circle-stroke-color': '#ffffff',
-          },
-        })
+        // map.addSource('points', {
+        //   type: 'geojson',
+        //   data: {
+        //     type: 'FeatureCollection',
+        //     features: [
+        //       {
+        //         type: 'Feature',
+        //         properties: {},
+        //         geometry: {
+        //           type: 'Point',
+        //           coordinates: center,
+        //         },
+        //       },
+        //     ],
+        //   },
+        // })
+        // map.addLayer({
+        //   id: 'circle',
+        //   type: 'circle',
+        //   source: 'points',
+        //   paint: {
+        //     'circle-color': '#4264fb',
+        //     'circle-radius': 8,
+        //     'circle-stroke-width': 2,
+        //     'circle-stroke-color': '#ffffff',
+        //   },
+        // })
       })
     }
   }, [map, center])

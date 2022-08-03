@@ -11,11 +11,6 @@
           ["^react"],
           ["^next"],
           ["^@?\\w"],
-          ["^legenda-admin"],
-          ["^legenda-shared"],
-          ["^legenda-services"],
-          ["^legenda-ui"],
-          ["^legenda-utils"],
           ["^\\u0000"],
           ["^__mocks__"],
           ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
@@ -31,4 +26,3 @@
   "plugins": ["simple-import-sort", "unused-imports"],
   "extends": ["next", "next/core-web-vitals", "prettier"]
 }
-
