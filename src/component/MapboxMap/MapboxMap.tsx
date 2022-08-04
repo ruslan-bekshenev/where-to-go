@@ -44,28 +44,27 @@ const MapboxMap = ({
   useEffect(() => {
     const node = mapNode.current
 
-    if (typeof window === 'undefined' || node === null) return
-    const mapboxMap = new mapboxgl.Map({
-      container: node,
-      accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [-74.5, 40],
-      zoom: 11,
-      ...initialOptions,
-    })
+    if (typeof window !== 'undefined' && node) {
+      const mapboxMap = new mapboxgl.Map({
+        container: node,
+        accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-74.5, 40],
+        zoom: 11,
+        ...initialOptions,
+      })
 
-    setMap(mapboxMap)
-    if (onCreated) onCreated(mapboxMap)
+      setMap(mapboxMap)
+      if (onCreated) onCreated(mapboxMap)
 
-    if (onLoaded) mapboxMap.once('load', () => onLoaded(mapboxMap))
+      if (onLoaded) mapboxMap.once('load', () => onLoaded(mapboxMap))
 
-    return () => {
-      mapboxMap.remove()
-      setMap(undefined)
-      if (onRemoved) onRemoved()
+      return () => {
+        mapboxMap.remove()
+        setMap(undefined)
+        if (onRemoved) onRemoved()
+      }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -80,11 +79,7 @@ const MapboxMap = ({
     <div className={styles.appContainer}>
       <div className={styles.search}>
         <div className={styles.searchContainer}>
-          <Input
-            size="large"
-            placeholder="Введите город"
-            onChange={handleInput}
-          />
+          <Input placeholder="Введите город" onChange={handleInput} />
           <Button type="primary" onClick={handleSearch}>
             Найти
           </Button>

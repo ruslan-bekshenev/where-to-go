@@ -10,5 +10,13 @@
   @apply absolute w-full flex justify-center py-5 z-10;
 }
 .searchContainer {
-  @apply w-2/4;
+  @apply w-2/4 flex bg-white rounded-md p-1;
+
+  input {
+    @apply mr-2;
+  }
+
+  input, button {
+    @apply rounded-md;
+  }
 }

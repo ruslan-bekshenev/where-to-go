@@ -37,7 +37,6 @@ const Map: NextPage<MapProps> = () => {
   const [loading, setLoading] = useState(true)
   const handleMapLoading = () => setLoading(false)
   const center: [number, number] = [city?.lon ?? 0, city?.lat ?? 0]
-  console.log(city)
   return (
     <>
       <Head>
