@@ -1,15 +1,15 @@
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 
 import { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 
+import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query'
 import { Input } from 'antd'
-import axios from 'axios'
 import SearchContainer from 'src/component/SearchContainer'
+import MapService from 'src/services/map'
 
 import MapboxMap from '../../component/MapboxMap'
-import useDebounce from '../../util/hooks/useDebounce'
 
 import styles from './Map.module.scss'
 
@@ -38,35 +38,42 @@ interface CityProps {
     wikidata: string
   }[]
 }
+
 interface MapProps {
   city: CityProps
   coords: [number, number]
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  const { lat, lon } = query
-  try {
-    const { data } = await axios.get(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${lon},${lat}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`,
+  const { name } = query
+  if (name) {
+    const queryClient = new QueryClient()
+    await queryClient.prefetchQuery(['posts', name], () =>
+      MapService.geoname(name as string),
     )
-    const city = data?.features[data.features.length - 2]
     return {
-      props: { city, coords: data?.query },
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
     }
-  } catch (e) {
-    return {
-      notFound: true,
-    }
+  }
+  return {
+    props: {},
   }
 }
 
 const Map: NextPage<MapProps> = ({ city, coords }) => {
-  console.log(coords)
   const router = useRouter()
+  const {
+    query: { name },
+  } = router
+  const { data } = useQuery(['posts', name], () =>
+    MapService.geoname(name as string),
+  )
+  console.log(data)
+  // const { data } = useRouter([])
   const [loading, setLoading] = useState(true)
   const handleMapLoading = () => setLoading(false)
-  const [search, setSearch] = useState<string>('')
-  const debouncedSearch = useDebounce(search, 500)
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     // setSearch(e.target.value)
@@ -84,48 +91,34 @@ const Map: NextPage<MapProps> = ({ city, coords }) => {
     //   console.log(e)
     // }
   }
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      navigator.geolocation.getCurrentPosition((position) => {
-        router.replace({
-          query: {
-            lon: position.coords.longitude,
-            lat: position.coords.latitude,
-          },
-        })
-      })
-    }
-  }, [])
 
   return (
     <>
       <Head>
         <title>Карта достопримечательностей</title>
       </Head>
-      <>
-        <div className={styles.appContainer}>
-          <div className={styles.search}>
-            <div className={styles.searchContainer}>
-              <Input
-                size="large"
-                placeholder="Введите город"
-                onChange={handleSearch}
-              />
-            </div>
-          </div>
-          <div className={styles.mapWrapper}>
-            <MapboxMap
-              initialOptions={{
-                center: coords,
-              }}
-              onMapLoaded={handleMapLoading}
-              center={coords ?? [0, 0]}
+      <div className={styles.appContainer}>
+        <div className={styles.search}>
+          <div className={styles.searchContainer}>
+            <Input
+              size="large"
+              placeholder="Введите город"
+              onChange={handleSearch}
             />
           </div>
-          {/*{loading && <MapLoadingHolder className="loading-holder" />}*/}
         </div>
-        <SearchContainer />
-      </>
+        <div className={styles.mapWrapper}>
+          <MapboxMap
+            initialOptions={{
+              center: coords,
+            }}
+            onMapLoaded={handleMapLoading}
+            center={coords ?? [0, 0]}
+          />
+        </div>
+        {/*{loading && <MapLoadingHolder className="loading-holder" />}*/}
+      </div>
+      <SearchContainer />
     </>
   )
 }
