@@ -10,7 +10,6 @@ class MapService {
         },
       )
       const city = data?.features[data.features.length - 2]
-      console.log(data)
       return { city, coords: data?.query }
     } catch (e: any) {
       console.error(e.response.message)

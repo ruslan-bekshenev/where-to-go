@@ -1,8 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 
+import { useRouter } from 'next/router'
+
+import { Button, Input } from 'antd'
 import mapboxgl from 'mapbox-gl'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
+
+import styles from '../../pages/map/Map.module.scss'
 
 export interface MapboxMapProps {
   initialOptions?: Omit<mapboxgl.MapboxOptions, 'container'>
@@ -20,9 +25,21 @@ const MapboxMap = ({
   onRemoved,
   center,
 }: MapboxMapProps) => {
+  const router = useRouter()
+  const [search, setSearch] = useState(router.query.name ?? '')
   const [map, setMap] = useState<mapboxgl.Map>()
 
   const mapNode = useRef(null)
+
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value)
+  }
+
+  const handleSearch = () => {
+    router.replace({
+      query: { name: search },
+    })
+  }
 
   useEffect(() => {
     const node = mapNode.current
@@ -53,42 +70,31 @@ const MapboxMap = ({
 
   useEffect(() => {
     if (map) {
-      map.on('load', () => {
-        map.flyTo({
-          center,
-        })
-        // map.addSource('points', {
-        //   type: 'geojson',
-        //   data: {
-        //     type: 'FeatureCollection',
-        //     features: [
-        //       {
-        //         type: 'Feature',
-        //         properties: {},
-        //         geometry: {
-        //           type: 'Point',
-        //           coordinates: center,
-        //         },
-        //       },
-        //     ],
-        //   },
-        // })
-        // map.addLayer({
-        //   id: 'circle',
-        //   type: 'circle',
-        //   source: 'points',
-        //   paint: {
-        //     'circle-color': '#4264fb',
-        //     'circle-radius': 8,
-        //     'circle-stroke-width': 2,
-        //     'circle-stroke-color': '#ffffff',
-        //   },
-        // })
+      map.flyTo({
+        center,
       })
     }
   }, [map, center])
 
-  return <div ref={mapNode} style={{ width: '100%', height: '100%' }} />
+  return (
+    <div className={styles.appContainer}>
+      <div className={styles.search}>
+        <div className={styles.searchContainer}>
+          <Input
+            size="large"
+            placeholder="Введите город"
+            onChange={handleInput}
+          />
+          <Button type="primary" onClick={handleSearch}>
+            Найти
+          </Button>
+        </div>
+      </div>
+      <div className={styles.mapWrapper}>
+        <div ref={mapNode} style={{ width: '100%', height: '100%' }} />
+      </div>
+    </div>
+  )
 }
 
 export default MapboxMap
