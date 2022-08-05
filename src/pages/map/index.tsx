@@ -33,10 +33,11 @@ const Map: NextPage<MapProps> = () => {
   const {
     query: { name },
   } = router
-  const { data: city } = useGeoname(name as string)
+  const { data } = useGeoname(name as string) ?? {}
+  const { geoname, places } = data ?? {}
   const [loading, setLoading] = useState(true)
   const handleMapLoading = () => setLoading(false)
-  const center: [number, number] = [city?.lon ?? 0, city?.lat ?? 0]
+  const center: [number, number] = [geoname?.lon ?? 0, geoname?.lat ?? 0]
   return (
     <>
       <Head>
@@ -46,10 +47,11 @@ const Map: NextPage<MapProps> = () => {
         initialOptions={{
           center,
         }}
+        places={places}
         onMapLoaded={handleMapLoading}
         center={center}
       />
-      {!city && <SearchContainer />}
+      {!geoname && <SearchContainer />}
     </>
   )
 }

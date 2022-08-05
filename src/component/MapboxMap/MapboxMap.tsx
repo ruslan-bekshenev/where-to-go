@@ -16,6 +16,7 @@ export interface MapboxMapProps {
   onRemoved?(): void
   onMapLoaded?: any
   center?: [number, number]
+  places: any
 }
 
 const MapboxMap = ({
@@ -24,6 +25,7 @@ const MapboxMap = ({
   onLoaded,
   onRemoved,
   center,
+  places,
 }: MapboxMapProps) => {
   const router = useRouter()
   const [search, setSearch] = useState(router.query.name ?? '')
@@ -49,10 +51,123 @@ const MapboxMap = ({
         container: node,
         accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
         style: 'mapbox://styles/mapbox/streets-v11',
-        center: [-74.5, 40],
-        zoom: 11,
+        center,
+        zoom: 3,
         ...initialOptions,
       })
+
+      if (places) {
+        mapboxMap.flyTo({
+          center,
+        })
+
+        mapboxMap.on('load', () => {
+          mapboxMap.addSource('earthquakes', {
+            type: 'geojson',
+            data: places,
+            cluster: true,
+            clusterMaxZoom: 14, // Max zoom to cluster points on
+            clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+          })
+
+          mapboxMap.addLayer({
+            id: 'clusters',
+            type: 'circle',
+            source: 'earthquakes',
+            filter: ['has', 'point_count'],
+            paint: {
+              'circle-color': [
+                'step',
+                ['get', 'point_count'],
+                '#51bbd6',
+                100,
+                '#f1f075',
+                750,
+                '#f28cb1',
+              ],
+              'circle-radius': [
+                'step',
+                ['get', 'point_count'],
+                20,
+                100,
+                30,
+                750,
+                40,
+              ],
+            },
+          })
+
+          mapboxMap.addLayer({
+            id: 'cluster-count',
+            type: 'symbol',
+            source: 'earthquakes',
+            filter: ['has', 'point_count'],
+            layout: {
+              'text-field': '{point_count_abbreviated}',
+              'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+              'text-size': 12,
+            },
+          })
+
+          mapboxMap.addLayer({
+            id: 'unclustered-point',
+            type: 'circle',
+            source: 'earthquakes',
+            filter: ['!', ['has', 'point_count']],
+            paint: {
+              'circle-color': '#11b4da',
+              'circle-radius': 4,
+              'circle-stroke-width': 1,
+              'circle-stroke-color': '#fff',
+            },
+          })
+
+          mapboxMap.addSource('places', {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: places,
+            },
+          })
+
+          mapboxMap.addLayer({
+            id: 'places',
+            type: 'circle',
+            source: 'places',
+            paint: {
+              'circle-color': '#4264fb',
+              'circle-radius': 6,
+              'circle-stroke-width': 2,
+              'circle-stroke-color': '#ffffff',
+            },
+          })
+
+          const popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+          })
+
+          mapboxMap.on('mouseenter', 'places', (e) => {
+            mapboxMap.getCanvas().style.cursor = 'pointer'
+
+            // @ts-ignore
+            const coordinates = e.features[0].geometry.coordinates.slice()
+            // @ts-ignore
+            const description = e.features[0].properties.description
+
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+              coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
+            }
+
+            popup.setLngLat(coordinates).setHTML(description).addTo(mapboxMap)
+          })
+
+          mapboxMap.on('mouseleave', 'places', () => {
+            mapboxMap.getCanvas().style.cursor = ''
+            popup.remove()
+          })
+        })
+      }
 
       setMap(mapboxMap)
       if (onCreated) onCreated(mapboxMap)
@@ -65,21 +180,17 @@ const MapboxMap = ({
         if (onRemoved) onRemoved()
       }
     }
-  }, [])
-
-  useEffect(() => {
-    if (map) {
-      map.flyTo({
-        center,
-      })
-    }
-  }, [map, center])
+  }, [places])
 
   return (
     <div className={styles.appContainer}>
       <div className={styles.search}>
         <div className={styles.searchContainer}>
-          <Input placeholder="Введите город" onChange={handleInput} />
+          <Input
+            placeholder="Введите город"
+            onChange={handleInput}
+            value={search}
+          />
           <Button type="primary" onClick={handleSearch}>
             Найти
           </Button>
