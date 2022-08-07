@@ -17,6 +17,7 @@ export interface MapboxMapProps {
   onMapLoaded?: any
   center?: [number, number]
   places: any
+  onMouseUp?(e: mapboxgl.MapMouseEvent & mapboxgl.EventData): void
 }
 
 const MapboxMap = ({
@@ -26,6 +27,7 @@ const MapboxMap = ({
   onRemoved,
   center,
   places,
+  onMouseUp,
 }: MapboxMapProps) => {
   const router = useRouter()
   const [search, setSearch] = useState(router.query.name ?? '')
@@ -62,6 +64,10 @@ const MapboxMap = ({
         })
 
         mapboxMap.on('load', () => {
+          if (onMouseUp) {
+            mapboxMap.on('mouseup', onMouseUp)
+          }
+
           mapboxMap.addSource('earthquakes', {
             type: 'geojson',
             data: places,

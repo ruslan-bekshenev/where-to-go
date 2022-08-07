@@ -5,6 +5,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 
 import { dehydrate, QueryClient } from '@tanstack/react-query'
+import mapboxgl from 'mapbox-gl'
 import SearchContainer from 'src/component/SearchContainer'
 
 import MapboxMap from '../../component/MapboxMap'
@@ -38,6 +39,11 @@ const Map: NextPage<MapProps> = () => {
   const [loading, setLoading] = useState(true)
   const handleMapLoading = () => setLoading(false)
   const center: [number, number] = [geoname?.lon ?? 0, geoname?.lat ?? 0]
+
+  const handleMouseUp = (e: mapboxgl.MapMouseEvent & mapboxgl.EventData) => {
+    console.log(e.lngLat)
+  }
+
   return (
     <>
       <Head>
@@ -50,6 +56,7 @@ const Map: NextPage<MapProps> = () => {
         places={places}
         onMapLoaded={handleMapLoading}
         center={center}
+        onMouseUp={handleMouseUp}
       />
       {!geoname && <SearchContainer />}
     </>
